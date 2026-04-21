@@ -1,0 +1,10 @@
+services:
+  poster:
+    build: .
+    container_name: fvce-poster
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Mount the queue so edits from your PC take effect without rebuilding.
+      - ./content:/app/content

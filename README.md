@@ -14,7 +14,38 @@ and notifies your HighLevel account after each publish.
 
 ---
 
-## One-time setup
+## Quickstart on your Windows PC
+
+You said you have Claude Code on your PC. From there:
+
+```
+git clone https://github.com/cschett13-collab/Newmimdpro.git
+cd Newmimdpro
+git checkout claude/instagram-business-setup-nieo4
+scripts\setup.bat
+```
+
+That installs everything and creates a `.env` from the template. Then:
+
+1. Open `.env` in Notepad. Fill in `IG_ACCESS_TOKEN`, `IG_USER_ID`, and either
+   `HIGHLEVEL_WEBHOOK_URL` **or** `HIGHLEVEL_API_TOKEN` + `HIGHLEVEL_LOCATION_ID`.
+   (Detailed how-to below.)
+2. Edit `content\queue.json` and replace the `example.com` URLs with real
+   publicly-hosted image/video URLs + your captions.
+3. Validate: `scripts\run.bat doctor`
+4. Fire one test post: `scripts\run.bat once`
+5. Start the loop: `scripts\run.bat`
+
+Or, if you prefer Docker Desktop:
+
+```
+docker compose up -d
+docker compose logs -f
+```
+
+---
+
+## One-time setup (the parts only you can do)
 
 ### 1. Instagram Business account + Meta app
 
@@ -31,12 +62,13 @@ and notifies your HighLevel account after each publish.
    - `pages_show_list`
 6. Generate a **User Access Token**, then exchange it for a **long-lived Page
    access token**: https://developers.facebook.com/docs/facebook-login/guides/access-tokens#long-lived
-7. Find your IG User ID:
+   Paste that as `IG_ACCESS_TOKEN` in `.env`.
+7. Find your `IG_USER_ID` automatically:
    ```
-   GET /me/accounts         -> get your {page-id}
-   GET /{page-id}?fields=instagram_business_account
+   scripts\run.bat find-ig
    ```
-   The `instagram_business_account.id` is your `IG_USER_ID`.
+   It lists every Page + linked Instagram Business account ID. Copy the right
+   one into `.env`.
 
 ### 2. HighLevel
 
@@ -57,44 +89,28 @@ Pick ONE path:
 - Verify the endpoint path in `src/highlevel.py::_send_api_note` against your
   current HighLevel API docs before going live.
 
-### 3. Local install
+### 3. Content
 
-```bash
-git clone <this repo>
-cd Newmimdpro
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-# edit .env and fill in the values
-```
-
-### 4. Add content to the queue
-
-Edit `content/queue.json`. Each entry needs a **publicly reachable** image or
-video URL, the type, and a caption. See `content/README.md` for rules.
+Each entry in `content/queue.json` needs a **publicly reachable** image or
+video URL, the type, and a caption. See `content/README.md` for rules and
+hosting options.
 
 ---
 
-## Running
+## Command reference
 
-**Test a single post** (uses the first unposted queue item):
-```bash
-python -m src.main once
-```
+| Command                     | What it does                                     |
+|-----------------------------|--------------------------------------------------|
+| `scripts\setup.bat`         | Install Python deps, create `.env` from template |
+| `scripts\run.bat doctor`    | Validate `.env`, test IG token + HL webhook      |
+| `scripts\run.bat find-ig`   | Print every IG_USER_ID your token can see        |
+| `scripts\run.bat once`      | Publish the next unposted item, then exit        |
+| `scripts\run.bat`           | Start the scheduler (posts every 5 hours)        |
+| `docker compose up -d`      | Same, but under Docker - no Python install needed|
 
-**Run forever, posting every 5 hours:**
-```bash
-python -m src.main
-```
+Mac / Linux: replace `scripts\run.bat` with `./scripts/run.sh`.
 
 Change the cadence in `.env` via `POST_INTERVAL_HOURS`.
-
-### Keep it running
-
-On your own machine just leave it in a terminal, or use:
-- **Linux (systemd):** create a unit calling `python -m src.main`.
-- **Any OS:** run under `pm2`, `supervisord`, or a Docker container.
 
 ---
 
@@ -107,6 +123,8 @@ On your own machine just leave it in a terminal, or use:
 | `src/content_queue.py` | Reads/writes `content/queue.json`; picks next unposted item; marks as posted. |
 | `src/highlevel.py` | Sends a JSON payload to your HighLevel webhook OR creates a note via the API after each IG post. |
 | `src/main.py` | Entry point. `once` publishes once; no arg = forever loop. |
+| `scripts/doctor.py` | Pre-flight validator. |
+| `scripts/find_ig_user_id.py` | Helper to discover your IG_USER_ID from a token. |
 
 ---
 
