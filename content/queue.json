@@ -1,0 +1,18 @@
+[
+  {
+    "media_url": "https://example.com/your-public-image-1.jpg",
+    "media_type": "image",
+    "caption": "Fox Valley Client Engine - drop your real caption + hashtags here.",
+    "posted": false,
+    "posted_at": null,
+    "media_id": null
+  },
+  {
+    "media_url": "https://example.com/your-public-reel-1.mp4",
+    "media_type": "video",
+    "caption": "Second post caption here. #foxvalley #yourniche",
+    "posted": false,
+    "posted_at": null,
+    "media_id": null
+  }
+]
