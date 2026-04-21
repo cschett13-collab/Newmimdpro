@@ -21,6 +21,7 @@ if "%1"=="run" goto run
 if "%1"=="once" goto once
 if "%1"=="doctor" goto doctor
 if "%1"=="find-ig" goto findig
+if "%1"=="webui" goto webui
 echo Unknown command: %1
 exit /b 2
 
@@ -39,6 +40,10 @@ goto end
 :findig
 shift
 python -m scripts.find_ig_user_id %*
+goto end
+
+:webui
+python -m webui.app
 goto end
 
 :end

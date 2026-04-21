@@ -46,9 +46,12 @@ def check_env() -> dict | None:
         "ig_token": os.environ["IG_ACCESS_TOKEN"].strip(),
         "ig_user_id": os.environ["IG_USER_ID"].strip(),
         "graph_version": os.getenv("IG_GRAPH_VERSION", "v21.0").strip(),
+        "fb_page_id": os.getenv("FB_PAGE_ID", "").strip(),
+        "crosspost_fb": os.getenv("CROSSPOST_TO_FACEBOOK", "").strip().lower() in {"1", "true", "yes", "on"},
         "hl_webhook": os.getenv("HIGHLEVEL_WEBHOOK_URL", "").strip(),
         "hl_api_token": os.getenv("HIGHLEVEL_API_TOKEN", "").strip(),
         "hl_location_id": os.getenv("HIGHLEVEL_LOCATION_ID", "").strip(),
+        "anthropic_key": os.getenv("ANTHROPIC_API_KEY", "").strip(),
     }
 
 
@@ -69,6 +72,35 @@ def check_ig(cfg: dict) -> bool:
     handle = data.get("username") or data.get("name") or data.get("id")
     _print(OK, f"Instagram account reachable: @{handle}")
     return True
+
+
+def check_facebook(cfg: dict) -> None:
+    if not cfg["crosspost_fb"]:
+        _print(WARN, "Facebook cross-post disabled (CROSSPOST_TO_FACEBOOK=false).")
+        return
+    if not cfg["fb_page_id"]:
+        _print(FAIL, "CROSSPOST_TO_FACEBOOK=true but FB_PAGE_ID is empty.")
+        return
+    r = requests.get(
+        f"https://graph.facebook.com/{cfg['graph_version']}/{cfg['fb_page_id']}",
+        params={"fields": "id,name", "access_token": cfg["ig_token"]},
+        timeout=30,
+    )
+    if not r.ok:
+        _print(FAIL, f"Facebook Page lookup failed: {r.status_code} {r.text}")
+        return
+    _print(OK, f"Facebook Page reachable: {r.json().get('name')}")
+
+
+def check_anthropic(cfg: dict) -> None:
+    if not cfg["anthropic_key"]:
+        _print(WARN, "ANTHROPIC_API_KEY not set. Auto-captioning disabled (OK if captions are always written manually).")
+        return
+    try:
+        import anthropic  # noqa: F401
+        _print(OK, "Anthropic SDK installed and API key present.")
+    except ImportError:
+        _print(FAIL, "ANTHROPIC_API_KEY set but `anthropic` package not installed. Run setup again.")
 
 
 def check_highlevel(cfg: dict) -> None:
@@ -126,7 +158,9 @@ def main() -> int:
         return 1
 
     ig_ok = check_ig(cfg)
+    check_facebook(cfg)
     check_highlevel(cfg)
+    check_anthropic(cfg)
     check_queue()
 
     print()

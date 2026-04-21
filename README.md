@@ -1,7 +1,10 @@
 # Fox Valley Client Engine - Instagram auto-poster
 
 Posts one image or Reel to your Instagram Business account every 5 hours,
-and notifies your HighLevel account after each publish.
+optionally cross-posts to your Facebook Page, notifies your HighLevel
+account after each publish, and can auto-write captions with Claude when
+you leave them blank. Comes with a small local web UI for managing the
+content queue.
 
 **Honest disclaimers**
 - I cannot create Instagram / Facebook / HighLevel accounts for you. You set
@@ -104,6 +107,7 @@ hosting options.
 | `scripts\setup.bat`         | Install Python deps, create `.env` from template |
 | `scripts\run.bat doctor`    | Validate `.env`, test IG token + HL webhook      |
 | `scripts\run.bat find-ig`   | Print every IG_USER_ID your token can see        |
+| `scripts\run.bat webui`     | Start local queue manager at http://127.0.0.1:5050 |
 | `scripts\run.bat once`      | Publish the next unposted item, then exit        |
 | `scripts\run.bat`           | Start the scheduler (posts every 5 hours)        |
 | `docker compose up -d`      | Same, but under Docker - no Python install needed|
@@ -128,11 +132,21 @@ Change the cadence in `.env` via `POST_INTERVAL_HOURS`.
 
 ---
 
-## Things I did NOT build (tell me if you want them)
+## What's included now
 
-- Automatic content *generation* (AI image/caption). The code posts what you
-  feed it.
-- Facebook Page auto-cross-posting. Easy add with the same Graph API token.
-- Ads / monetization setup. Those are manual Meta Business Suite steps; no
+- Instagram Business posting (image + Reel).
+- **Facebook Page cross-posting** — set `CROSSPOST_TO_FACEBOOK=true` and
+  `FB_PAGE_ID` in `.env`. Uses the same Graph API token.
+- **AI caption generation** — set `ANTHROPIC_API_KEY`. Any queue item with a
+  blank caption gets one written by Claude from the image (and optional
+  `hint` text).
+- **Local web UI** — `scripts\run.bat webui` opens a browser page where you
+  can add/reorder/delete queue items without editing JSON.
+- **HighLevel integration** — webhook or API token.
+
+## Still not included (ask if you want it)
+
+- AI *image* generation. Still need you or a designer to produce the visuals.
+- Ads / monetization setup. Meta requires manual business verification; no
   API makes it one-click.
-- A web UI for managing the queue.
+- Multi-account support (one business only per install today).

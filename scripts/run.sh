@@ -22,5 +22,6 @@ case "$cmd" in
   once)     exec python -m src.main once ;;
   doctor)   exec python -m scripts.doctor ;;
   find-ig)  shift; exec python -m scripts.find_ig_user_id "$@" ;;
+  webui)    exec python -m webui.app ;;
   *) echo "Unknown command: $cmd" >&2; exit 2 ;;
 esac

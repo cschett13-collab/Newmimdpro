@@ -11,6 +11,7 @@ class QueueItem:
     media_url: str
     media_type: str  # "image" or "video"
     caption: str
+    hint: str = ""  # optional context passed to the AI caption generator
     posted: bool = False
     posted_at: str | None = None
     media_id: str | None = None
@@ -57,6 +58,7 @@ class ContentQueue:
                     media_url=raw["media_url"],
                     media_type=raw.get("media_type", "image"),
                     caption=raw.get("caption", ""),
+                    hint=raw.get("hint", ""),
                     posted=False,
                 )
         return None
