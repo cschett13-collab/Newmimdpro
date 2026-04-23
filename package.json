@@ -5,11 +5,13 @@
   "description": "Fox Valley Client Engine / IMD client portal — pulls live stats from HighLevel.",
   "scripts": {
     "setup": "node scripts/setup.mjs",
+    "export-drafts": "node scripts/export-drafts.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/test-birthdays.mts"
   },
   "dependencies": {
     "next": "14.2.15",

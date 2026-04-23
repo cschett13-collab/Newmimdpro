@@ -11,6 +11,10 @@ import { fmtDateTime, fmtMoney, fmtNumber, relative } from "@/lib/format";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { ApiErrorBanner } from "@/components/ApiErrorBanner";
+import { SentinelStatusCard } from "@/components/SentinelStatusCard";
+import { BirthdaysCard } from "@/components/BirthdaysCard";
+import { getSentinelStatus } from "@/lib/ops";
+import { upcomingBirthdays } from "@/lib/birthdays";
 import {
   Users,
   Briefcase,
@@ -22,6 +26,9 @@ import {
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const CONTACT_SAMPLE_LIMIT = 200;
+const BIRTHDAY_WINDOW_DAYS = 7;
 
 type SafeResult<T> =
   | { ok: true; data: T }
@@ -61,13 +68,15 @@ export default async function DashboardPage({
     wonOppsRes,
     conversationsRes,
     calendarsRes,
+    sentinel,
   ] = await Promise.all([
-    safe(hl.searchContacts({ limit: 1 })),
+    safe(hl.searchContacts({ limit: CONTACT_SAMPLE_LIMIT })),
     safe(hl.pipelines()),
     safe(hl.searchOpportunities({ status: "open", limit: 100 })),
     safe(hl.searchOpportunities({ status: "won", limit: 100 })),
     safe(hl.searchConversations({ limit: 20 })),
     safe(hl.calendars()),
+    getSentinelStatus(),
   ]);
 
   // Upcoming appointments across calendars (next 30 days).
@@ -120,6 +129,9 @@ export default async function DashboardPage({
   );
 
   const totalContacts = contactsRes.ok ? contactsRes.data.total ?? 0 : 0;
+  const contactSample = contactsRes.ok ? contactsRes.data.contacts ?? [] : [];
+  const birthdays = upcomingBirthdays(contactSample, BIRTHDAY_WINDOW_DAYS);
+  const birthdaySampleLimited = totalContacts > contactSample.length;
 
   const anyError =
     !contactsRes.ok ||
@@ -178,6 +190,15 @@ export default async function DashboardPage({
             value={fmtNumber(unreadCount)}
             icon={MessagesSquare}
             hint={`${conversations.length} recent threads`}
+          />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <SentinelStatusCard status={sentinel.status} error={sentinel.error} />
+          <BirthdaysCard
+            birthdays={birthdays}
+            windowDays={BIRTHDAY_WINDOW_DAYS}
+            sampleLimited={birthdaySampleLimited}
           />
         </section>
 
