@@ -1,0 +1,24 @@
+[
+  {
+    "id": "mid-valley-dental-sc-2026-04-23",
+    "to": "office@midvalleydentalsc.example",
+    "from": "owner@foxvalleyclientengine.com",
+    "subject": "Quick idea for Mid Valley Dental's new-patient flow",
+    "body": "Hi there,\n\nI help local dental practices in the Fox Valley area turn missed calls into booked appointments with an automated text-back system. Mind if I send over a 90-second demo tailored to Mid Valley Dental?\n\nEither way — appreciate the time.\n\n— Cole",
+    "lead": "Mid Valley Dental SC",
+    "company": "Mid Valley Dental SC",
+    "status": "ready",
+    "createdAt": "2026-04-23T19:05:00Z"
+  },
+  {
+    "id": "hometown-heating-cooling-2026-04-23",
+    "to": "contact@hometownheatingandcooling.example",
+    "from": "owner@foxvalleyclientengine.com",
+    "subject": "HVAC lead capture for HomeTown Heating",
+    "body": "Hey HomeTown team,\n\nNoticed you're running ads but missed calls don't auto-route to a text. I build systems that send a 'sorry we missed you' text + book the job in under 60 seconds. Worth a 10-min look?\n\n— Cole",
+    "lead": "HomeTown Heating & Cooling",
+    "company": "HomeTown Heating & Cooling",
+    "status": "ready",
+    "createdAt": "2026-04-23T19:06:00Z"
+  }
+]

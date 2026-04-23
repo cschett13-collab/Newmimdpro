@@ -11,3 +11,8 @@ out
 coverage
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Local operational data (real drafts, sentinel status, exported .eml)
+/data/drafts.json
+/data/sentinel-status.json
+/exports

@@ -11,6 +11,8 @@ import { fmtDateTime, fmtMoney, fmtNumber, relative } from "@/lib/format";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { ApiErrorBanner } from "@/components/ApiErrorBanner";
+import { SentinelStatusCard } from "@/components/SentinelStatusCard";
+import { getSentinelStatus } from "@/lib/ops";
 import {
   Users,
   Briefcase,
@@ -61,6 +63,7 @@ export default async function DashboardPage({
     wonOppsRes,
     conversationsRes,
     calendarsRes,
+    sentinel,
   ] = await Promise.all([
     safe(hl.searchContacts({ limit: 1 })),
     safe(hl.pipelines()),
@@ -68,6 +71,7 @@ export default async function DashboardPage({
     safe(hl.searchOpportunities({ status: "won", limit: 100 })),
     safe(hl.searchConversations({ limit: 20 })),
     safe(hl.calendars()),
+    getSentinelStatus(),
   ]);
 
   // Upcoming appointments across calendars (next 30 days).
@@ -179,6 +183,10 @@ export default async function DashboardPage({
             icon={MessagesSquare}
             hint={`${conversations.length} recent threads`}
           />
+        </section>
+
+        <section>
+          <SentinelStatusCard status={sentinel.status} error={sentinel.error} />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-3">

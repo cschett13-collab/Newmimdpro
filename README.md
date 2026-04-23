@@ -22,6 +22,11 @@ sub-account and displays them as its own self-contained app.
   - Recent conversations and active opportunities
 - Full-page views for Contacts, Pipeline, Appointments, Conversations
 - Client switcher in the sidebar — add as many HighLevel sub-accounts as you want
+- **Outbound ops** (optional, sourced from local JSON files):
+  - Drafts page listing ready-to-send emails from the Pitcher pipeline
+  - Sentinel status widget on the dashboard (last scan, staleness warning)
+  - `npm run export-drafts` — writes ready drafts as `.eml` files you can drag
+    into Apple Mail / Outlook / Thunderbird to open as pre-filled composes
 
 ## Quick start
 
@@ -79,6 +84,10 @@ or in the URL `app.gohighlevel.com/v2/location/<locationId>/...`).
 | `PORTAL_ADMIN_EMAIL` | Login email for Fox Valley Client Engine staff. |
 | `PORTAL_ADMIN_PASSWORD` | Login password. Use something long. |
 | `PORTAL_CLIENTS` | JSON array of client configs (see above). |
+| `NEXT_PUBLIC_BASE_URL` | Public URL of the deployed portal. Used for post-logout redirect. Defaults to `http://localhost:3000`. |
+| `PORTAL_DRAFTS_PATH` | Optional. JSON file of outbound drafts. Defaults to `data/drafts.json`. Schema: see `data/README.md`. |
+| `PORTAL_SENTINEL_STATUS_PATH` | Optional. JSON file with the last Sentinel scan status. Defaults to `data/sentinel-status.json`. |
+| `PORTAL_DRAFTS_EXPORT_DIR` | Optional. Output directory for `npm run export-drafts`. Defaults to `exports/drafts`. |
 
 ## Deploy
 

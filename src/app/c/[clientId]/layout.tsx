@@ -7,6 +7,7 @@ import {
   Briefcase,
   CalendarDays,
   MessagesSquare,
+  Mail,
   ChevronDown,
   LogOut,
 } from "lucide-react";
@@ -30,6 +31,7 @@ export default function ClientLayout({
     { href: `/c/${client.id}/opportunities`, label: "Pipeline", icon: Briefcase },
     { href: `/c/${client.id}/appointments`, label: "Appointments", icon: CalendarDays },
     { href: `/c/${client.id}/conversations`, label: "Conversations", icon: MessagesSquare },
+    { href: `/c/${client.id}/drafts`, label: "Drafts", icon: Mail },
   ];
 
   return (
