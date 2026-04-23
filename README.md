@@ -27,8 +27,8 @@ sub-account and displays them as its own self-contained app.
 
 ```bash
 npm install
-cp .env.example .env.local
-# edit .env.local — see "Configure clients" below
+npm run setup          # generates .env.local with a fresh session secret
+# edit .env.local — set admin creds + add at least one client (below)
 npm run dev
 ```
 
