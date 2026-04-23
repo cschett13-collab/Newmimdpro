@@ -166,6 +166,7 @@ export type ContactSummary = {
   email?: string;
   phone?: string;
   dateAdded?: string;
+  dateOfBirth?: string;
   tags?: string[];
 };
 
