@@ -91,6 +91,30 @@ vercel deploy
 Set the four env vars in the Vercel project settings. Redeploy. Add the
 resulting domain (e.g. `portal.foxvalleyclientengine.com`) as a CNAME.
 
+## IMD's own lead-gen stack (separate from the portal)
+
+The portal is the *delivery surface* for clients. To get more clients,
+there's a separate set of CLI tools under `scripts/marketing/` that run
+IMD's own AI lead-gen and ad-generation pipeline (Telegram intake bot,
+auto-generated social ads, personalized cold-email writer).
+
+Strategy: see [`docs/MARKETING_PLAYBOOK.md`](./docs/MARKETING_PLAYBOOK.md).
+
+```bash
+# Generate Meta + Google + TikTok ad variants for a vertical
+ANTHROPIC_API_KEY=... node scripts/marketing/generate-ad.mjs \
+  --offer "20 booked appts in 60 days or you don't pay" \
+  --vertical "roofing contractor" --city "Appleton, WI" --radius 100
+
+# Run the Telegram intake bot (long-poll; daemonize via systemd/pm2)
+ANTHROPIC_API_KEY=... TELEGRAM_BOT_TOKEN=... HL_INBOUND_WEBHOOK_URL=... \
+  node scripts/marketing/telegram-bot.mjs
+
+# Personalize a CSV of cold-email prospects
+ANTHROPIC_API_KEY=... node scripts/marketing/personalize-cold-email.mjs \
+  --in prospects.csv --out prospects-personalized.csv
+```
+
 ## Notes
 
 - All HighLevel calls happen **server-side**. PITs never reach the browser.
