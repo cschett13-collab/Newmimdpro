@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Install Ollama + pull models + set up the Telegram bot as a systemd service
-# that auto-starts on boot and auto-restarts on crash. Tested on Ubuntu 22.04+/Debian 12.
+# Cortex AI — install Ollama, pull models, and register the Telegram bot as a
+# systemd service that auto-starts on boot and auto-restarts on crash.
+# Tested on Ubuntu 22.04+/Debian 12.
 set -euo pipefail
 
 INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,10 +40,10 @@ if [[ ! -f "$INSTALL_DIR/.env" ]]; then
     echo "==> Created .env — EDIT IT and add TELEGRAM_BOT_TOKEN before starting the bot"
 fi
 
-echo "==> Installing systemd unit: ai-bot.service"
-sudo tee /etc/systemd/system/ai-bot.service >/dev/null <<EOF
+echo "==> Installing systemd unit: cortex.service"
+sudo tee /etc/systemd/system/cortex.service >/dev/null <<EOF
 [Unit]
-Description=Local AI Telegram bot (Ollama-backed)
+Description=Cortex AI — local Telegram bot (Ollama-backed)
 After=network-online.target ollama.service
 Wants=network-online.target ollama.service
 
@@ -71,8 +72,8 @@ Next steps:
   1. Edit $INSTALL_DIR/.env and set TELEGRAM_BOT_TOKEN (get one from @BotFather)
      Optionally set AUTHORIZED_USER_IDS (your Telegram user ID, from @userinfobot)
   2. sudo systemctl enable --now ollama       # if not already enabled by the installer
-  3. sudo systemctl enable --now ai-bot
-  4. journalctl -u ai-bot -f                   # tail logs
+  3. sudo systemctl enable --now cortex
+  4. journalctl -u cortex -f                   # tail logs
 
 Manual test (without systemd):
   source venv/bin/activate

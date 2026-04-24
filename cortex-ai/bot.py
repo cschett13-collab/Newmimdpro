@@ -1,4 +1,4 @@
-"""Telegram bot that routes messages to a local Ollama server.
+"""Cortex AI — Telegram bot that routes messages to a local Ollama server.
 
 /code <prompt>  -> CODER_MODEL
 anything else   -> CHAT_MODEL
@@ -27,11 +27,11 @@ CODER_MODEL = os.getenv("CODER_MODEL", "qwen2.5-coder:7b")
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 CHAT_SYSTEM_PROMPT = os.getenv(
     "CHAT_SYSTEM_PROMPT",
-    "You are a helpful assistant running locally on the user's own hardware. Be concise.",
+    "You are Cortex AI, a helpful assistant running locally on the user's own hardware. Be concise.",
 )
 CODE_SYSTEM_PROMPT = os.getenv(
     "CODE_SYSTEM_PROMPT",
-    "You are a coding assistant. Reply with working code first, brief explanation second.",
+    "You are Cortex AI, a coding assistant. Reply with working code first, brief explanation second.",
 )
 AUTHORIZED_USER_IDS = {
     int(x) for x in os.getenv("AUTHORIZED_USER_IDS", "").split(",") if x.strip().isdigit()
@@ -43,7 +43,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     level=logging.INFO,
 )
-log = logging.getLogger("ai-bot")
+log = logging.getLogger("cortex")
 
 # (chat_id, mode) -> messages
 history: dict[tuple[int, str], list[dict]] = defaultdict(list)
@@ -95,7 +95,7 @@ async def respond(update: Update, mode: str, prompt: str, system: str, model: st
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "Local AI bot online.\n"
+        "Cortex AI online.\n"
         f"  chat:  {CHAT_MODEL}\n"
         f"  code:  {CODER_MODEL}\n\n"
         "Use /code <prompt> for coding. Anything else is chat. /reset to clear history."
@@ -134,7 +134,7 @@ def main() -> None:
     app.add_handler(CommandHandler("reset", cmd_reset))
     app.add_handler(CommandHandler("code", cmd_code))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
-    log.info("starting bot — chat=%s code=%s ollama=%s", CHAT_MODEL, CODER_MODEL, OLLAMA_HOST)
+    log.info("Cortex AI starting — chat=%s code=%s ollama=%s", CHAT_MODEL, CODER_MODEL, OLLAMA_HOST)
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
