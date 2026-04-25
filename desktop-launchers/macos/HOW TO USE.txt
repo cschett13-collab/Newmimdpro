@@ -1,0 +1,30 @@
+ZENVY AI — macOS DESKTOP LAUNCHERS
+===================================
+
+1. Copy all four .command files to your Desktop.
+2. Make them executable. In Terminal, cd to your Desktop and run:
+       chmod +x *.command
+3. Edit each one in TextEdit (or VS Code) and update the variables at the top:
+       "1 - Open Zenvy Bot (Telegram).command"  -> BOT_USERNAME=
+       "3 - Start Zenvy Bot (Node).command"     -> ZENVY_PATH=
+4. Double-click any launcher to run it.
+
+First-launch warning:
+   macOS Gatekeeper may say "cannot be opened because it is from an
+   unidentified developer." Right-click the .command file -> Open ->
+   Open. After that, double-clicking works normally.
+
+Optional polish:
+   - Add a custom icon: right-click the .command -> Get Info, drag a .png
+     onto the small icon in the top-left of the Info window.
+   - Drag the .command into the Dock for one-click access.
+
+Order of operations the first time:
+   4 - Start Ollama         (the AI engine — must run before the bot)
+   3 - Start Zenvy Bot      (only if running the bot ON THIS MAC; otherwise skip)
+   1 - Open Zenvy Bot       (chats with your bot via Telegram)
+   2 - Open Zenvy Web       (only if you also want the web portal)
+
+If your bot lives on a different machine (e.g., a 24/7 Linux box), you only
+need launchers 1 and 2. Skip 3 and 4 — those are for running everything
+locally on this Mac.

@@ -1,0 +1,25 @@
+ZENVY AI — WINDOWS DESKTOP LAUNCHERS
+=====================================
+
+ALL .bat files are pre-filled — no editing needed.
+Copy this whole "windows" folder to your Desktop and double-click in order:
+
+FIRST-TIME SETUP (do once):
+  1. Right-click "1 - Install WSL and Ubuntu.bat"  ->  Run as administrator
+  2. Reboot your PC
+  3. Open "Ubuntu" from Start Menu, set a username/password, close it
+  4. Double-click "2 - Install Zenvy in Ubuntu.bat"  (downloads ~400 MB)
+
+EVERY DAY:
+  - Double-click "3 - Start Zenvy Bot.bat"           (keep window open)
+  - Double-click "1 - Open Zenvy Bot (Telegram).bat" (chat with your bot)
+
+OPTIONAL:
+  - "3 - Start Zenvy Public.bat"     publishes a public web URL via Cloudflare
+  - "2 - Open Zenvy Web Portal.bat"  opens browser to localhost:3000
+  - "4 - Start Ollama.bat"           only needed if running Ollama natively on Windows
+                                     (the WSL install already handles this for you)
+
+To stop the bot: close the window opened by "3 - Start Zenvy Bot.bat".
+
+Polish: right-click any .bat -> Create shortcut -> pin to Start menu.

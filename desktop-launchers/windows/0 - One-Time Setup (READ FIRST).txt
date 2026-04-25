@@ -1,0 +1,54 @@
+ZENVY AI — ONE-TIME SETUP (Windows + WSL2)
+==========================================
+
+What you're doing: installing a tiny Linux environment INSIDE Windows
+(WSL2) and running your AI Telegram bot inside it. No partitioning,
+no dual boot, no risk to your files.
+
+Your bot is already created: @codyx_zenvy_bot  (https://t.me/codyx_zenvy_bot)
+The launchers below are pre-filled with your bot's token — you don't
+need to edit anything in Notepad.
+
+STEP 1 — Install WSL2 + Ubuntu (5 min + one reboot)
+---------------------------------------------------
+1. Right-click "1 - Install WSL and Ubuntu.bat" -> "Run as administrator"
+2. Wait for it to finish, then REBOOT YOUR PC.
+3. After reboot, click Start, type "Ubuntu", hit Enter.
+4. Pick any username + password (write down the password — you'll need it).
+5. When the prompt appears, just close that window.
+
+STEP 2 — Install Zenvy AI (10–15 min, mostly downloads)
+-------------------------------------------------------
+Double-click "2 - Install Zenvy in Ubuntu.bat".
+Type your Ubuntu password if asked. This:
+  - Clones the repo to ~/zenvy in Ubuntu
+  - Installs Python + Ollama + dependencies
+  - Pulls a small fast AI model (~400 MB)
+  - Writes your .env with your Telegram bot token
+  - Pulls a bigger 8B model in the background (~5 GB)
+
+When it says "Done.", you're ready.
+
+STEP 3 — Run your bot
+---------------------
+Double-click "3 - Start Zenvy Bot.bat".
+Wait until you see "Application started" — bot is now live.
+KEEP THIS WINDOW OPEN. Closing it stops the bot.
+
+STEP 4 — Chat with it
+---------------------
+Double-click "1 - Open Zenvy Bot (Telegram).bat".
+Telegram opens to your bot. Send /start. Have fun.
+
+WHEN SOMETHING BREAKS
+---------------------
+Open Ubuntu from the Start menu and run:
+   cat /tmp/zenvy-bot.log   # bot logs
+   cat /tmp/ollama.log      # AI engine logs
+   bash ~/zenvy/wsl-setup/stop.sh   # kill everything
+
+WANT IT ALWAYS-ON?
+------------------
+- Disable Windows sleep:
+  Settings -> System -> Power -> Screen and Sleep -> Sleep: Never
+- Or use "3 - Start Zenvy Public.bat" to publish a shareable web URL.
