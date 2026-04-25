@@ -337,8 +337,35 @@ def init_db() -> None:
                 ts      INTEGER NOT NULL,
                 PRIMARY KEY (user_id, key)
             );
+
+            CREATE TABLE IF NOT EXISTS tool_calls (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id   INTEGER NOT NULL,
+                tool      TEXT    NOT NULL,
+                args      TEXT,
+                result    TEXT,
+                ts        INTEGER NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_tool_chat ON tool_calls(chat_id, ts);
             """
         )
+
+
+def log_tool_call(chat_id: int, tool: str, args: dict, result: str) -> None:
+    with db() as conn:
+        conn.execute(
+            "INSERT INTO tool_calls (chat_id, tool, args, result, ts) VALUES (?, ?, ?, ?, ?)",
+            (chat_id, tool, json.dumps(args)[:500], result[:500], int(time.time())),
+        )
+
+
+def recent_tool_calls(chat_id: int, limit: int = 10) -> list[dict]:
+    with db() as conn:
+        rows = conn.execute(
+            "SELECT tool, args, result, ts FROM tool_calls WHERE chat_id=? ORDER BY id DESC LIMIT ?",
+            (chat_id, limit),
+        ).fetchall()
+    return [dict(r) for r in rows]
 
 
 def append_message(chat_id: int, mode: str, role: str, content: str) -> None:
@@ -462,7 +489,13 @@ def authorized(user_id: int) -> bool:
     return not AUTHORIZED_USER_IDS or user_id in AUTHORIZED_USER_IDS
 
 
+import tools as zenvy_tools  # noqa: E402
+
+TOOL_LOOP_MAX = 4
+
+
 async def call_model(model: str, messages: list[dict]) -> str:
+    """Single-shot completion (no tools)."""
     headers = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
     async with httpx.AsyncClient(timeout=600.0) as client:
         r = await client.post(
@@ -472,6 +505,60 @@ async def call_model(model: str, messages: list[dict]) -> str:
         )
         r.raise_for_status()
         return r.json()["choices"][0]["message"]["content"]
+
+
+async def call_with_tools(model: str, messages: list[dict], chat_id: int) -> str:
+    """Tool-enabled completion. Loops up to TOOL_LOOP_MAX rounds.
+
+    Logs every tool call to the tool_calls table so users can see what the bot did.
+    """
+    headers = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
+    msgs: list[dict] = list(messages)
+
+    for _round in range(TOOL_LOOP_MAX):
+        async with httpx.AsyncClient(timeout=600.0) as client:
+            r = await client.post(
+                f"{API_BASE}/chat/completions",
+                headers=headers,
+                json={
+                    "model": model,
+                    "messages": msgs,
+                    "tools": zenvy_tools.TOOL_SCHEMAS,
+                    "stream": False,
+                },
+            )
+            r.raise_for_status()
+            data = r.json()
+
+        msg = data["choices"][0]["message"]
+        tool_calls = msg.get("tool_calls") or []
+
+        if not tool_calls:
+            return msg.get("content") or ""
+
+        # Append the assistant's tool-call turn verbatim
+        msgs.append(msg)
+
+        for tc in tool_calls:
+            fn_name = tc.get("function", {}).get("name", "")
+            raw_args = tc.get("function", {}).get("arguments", {})
+            try:
+                args = json.loads(raw_args) if isinstance(raw_args, str) else raw_args
+            except json.JSONDecodeError:
+                args = {}
+            log.info("tool_call: %s(%s)", fn_name, args)
+            result = await zenvy_tools.execute_tool(fn_name, args or {})
+            log_tool_call(chat_id, fn_name, args, result)
+            msgs.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tc.get("id", ""),
+                    "name": fn_name,
+                    "content": result,
+                }
+            )
+
+    return "(tool-call loop hit limit; reply unfinished)"
 
 
 async def send_long(update: Update, text: str) -> None:
@@ -492,7 +579,7 @@ async def respond(update: Update, mode: str, prompt: str, model: str) -> None:
 
     await update.effective_chat.send_action(ChatAction.TYPING)
     try:
-        reply = await call_model(model, messages)
+        reply = await call_with_tools(model, messages, chat_id)
     except httpx.HTTPError as e:
         log.exception("model call failed")
         await update.message.reply_text(f"Model error: {e}")
@@ -564,7 +651,11 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Tools:\n"
         "  /score pain=X urgency=X ability=X explain=X repeat=X\n"
         "  /templates <type>   localservice|creator|agency|ecommerce\n"
-        "  /menu               quick-action keyboard\n\n"
+        "  /menu               quick-action keyboard\n"
+        "  /log                show recent web/tool actions\n\n"
+        "Web access:\n"
+        "  Bot can browse — ask things like 'search the web for X'\n"
+        "  or 'read this URL: https://...'\n\n"
         "Memory:\n"
         "  /remember name=...  /remember business=...\n"
         "  /remember tone=direct|friendly|premium|aggressive|simple\n"
@@ -725,6 +816,24 @@ async def cmd_forget(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     await update.message.reply_text("Forgotten." if n else "No such preference.")
 
 
+async def cmd_log(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show what the bot's been doing — recent web/tool calls in this chat."""
+    if not authorized(update.effective_user.id):
+        return
+    rows = recent_tool_calls(update.effective_chat.id, limit=10)
+    if not rows:
+        await update.message.reply_text("No web/tool actions yet in this chat.")
+        return
+    import datetime as dt
+    lines: list[str] = ["Recent actions (newest first):"]
+    for r in rows:
+        when = dt.datetime.fromtimestamp(r["ts"]).strftime("%m-%d %H:%M")
+        args_short = (r["args"] or "")[:80]
+        result_short = (r["result"] or "")[:80].replace("\n", " ")
+        lines.append(f"\n[{when}] {r['tool']}({args_short})\n  -> {result_short}")
+    await update.message.reply_text("\n".join(lines)[:TELEGRAM_MAX])
+
+
 async def cmd_prefs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not authorized(update.effective_user.id):
         return
@@ -761,7 +870,7 @@ def main() -> None:
         ("ad", cmd_ad), ("hook", cmd_hook), ("funnel", cmd_funnel),
         ("avatar", cmd_avatar), ("sell", cmd_sell), ("auto", cmd_auto),
         ("think", cmd_think), ("fast", cmd_fast),
-        ("templates", cmd_templates), ("score", cmd_score),
+        ("templates", cmd_templates), ("score", cmd_score), ("log", cmd_log),
         ("remember", cmd_remember), ("forget", cmd_forget), ("prefs", cmd_prefs),
     ]:
         app.add_handler(CommandHandler(cmd, fn))
