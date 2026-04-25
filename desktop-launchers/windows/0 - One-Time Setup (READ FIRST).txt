@@ -1,0 +1,60 @@
+ZENVY AI — ONE-TIME SETUP (Windows + WSL2)
+==========================================
+
+Plan: install Ubuntu Linux INSIDE Windows (WSL2), then install Zenvy in
+that Linux environment. WSL2 keeps Windows as your normal OS and runs
+Linux alongside it — no partitioning, no dual boot, no risk to your files.
+
+STEP 1 — Install WSL2 and Ubuntu (5 min, one reboot)
+----------------------------------------------------
+1. Right-click "1 - Install WSL and Ubuntu.bat" -> "Run as administrator"
+2. Wait for it to finish, then REBOOT YOUR PC.
+3. After reboot, click Start, type "Ubuntu", hit Enter.
+4. The first launch creates your Linux user — pick any username + password
+   (it doesn't have to match Windows). Remember the password.
+
+STEP 2 — Install Zenvy AI inside Ubuntu (15–30 min, mostly downloads)
+----------------------------------------------------------------------
+Double-click "2 - Install Zenvy in Ubuntu.bat".
+This pulls the repo, installs Node + Ollama + cloudflared, downloads one
+AI model (~5 GB), and writes your local config. Type your Ubuntu password
+when prompted (only the first time per session).
+
+STEP 3 — Edit your config (2 min, one time)
+-------------------------------------------
+At the end of step 2, the script tells you which file to edit. Open it in
+Ubuntu with:
+       nano ~/zenvy/.env.local
+Set:
+       PORTAL_ADMIN_EMAIL   = your email (you'll log in with this)
+       PORTAL_ADMIN_PASSWORD= a strong password
+       OWNER_EMAILS         = same email as PORTAL_ADMIN_EMAIL
+                              (gives you unlimited usage; everyone else is
+                              rate-limited to 30 requests/hour)
+Save with Ctrl+O, Enter, Ctrl+X.
+
+STEP 4 — Go live
+----------------
+Double-click "3 - Start Zenvy Public.bat".
+A black window opens showing a public URL like:
+       https://random-words-here.trycloudflare.com
+That URL is your bot. Anyone with it can chat with Zenvy.
+   - Visit it yourself first to confirm it works.
+   - The chat page is at  <your-url>/chat
+
+Closing the window stops the public URL. Re-run "3 - Start Zenvy Public.bat"
+to bring it back up. Each restart gives a NEW random URL — for a stable
+custom domain, see "named-tunnel" notes (advanced, requires Cloudflare account).
+
+STEP 5 — Keep it online
+-----------------------
+- Disable Windows sleep:  Settings -> System -> Power -> Screen and Sleep
+                          -> "Sleep" set to Never (when plugged in)
+- Don't shut down your PC. If it reboots, re-run "3 - Start Zenvy Public.bat".
+
+WHEN SOMETHING BREAKS
+---------------------
+Open Ubuntu from the Start menu and run:
+       cat /tmp/next.log    # Next.js logs
+       cat /tmp/ollama.log  # Ollama logs
+       bash ~/zenvy/wsl-setup/stop.sh   # kill everything

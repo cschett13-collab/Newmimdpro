@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
+import { isOwner } from "@/lib/isOwner";
 import { chooseModel, type RequestedMode, type UserApiKeys } from "@/lib/modelRouter";
 import { routeAI, type Message } from "@/lib/aiRouter";
+import { checkRate, clientKey } from "@/lib/rateLimit";
 
 const SYSTEM_PROMPT = `You are Zenvy AI, a premium execution assistant.
 
@@ -38,8 +40,16 @@ function sanitizeMessages(input: unknown): Message[] {
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ownerSession = isOwner(session?.email);
+
+  // Rate limit anonymous users by IP. Owner is unlimited.
+  const key = ownerSession ? `owner:${session?.email}` : `ip:${clientKey(req)}`;
+  const rl = checkRate(key, ownerSession);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Rate limit exceeded. Try again in ${Math.ceil(rl.resetIn / 60000)} min.` },
+      { status: 429 },
+    );
   }
 
   const body = (await req.json().catch(() => ({}))) as Body;
@@ -49,7 +59,7 @@ export async function POST(req: NextRequest) {
   }
 
   const choice = chooseModel({
-    email: session.email,
+    email: session?.email,
     requestedMode: body.requestedMode,
     userApiKeys: body.userApiKeys,
   });
