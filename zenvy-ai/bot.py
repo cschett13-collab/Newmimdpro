@@ -45,7 +45,10 @@ from contextlib import contextmanager
 from typing import Iterator
 
 import httpx
+from dotenv import load_dotenv
 from telegram import KeyboardButton, ReplyKeyboardMarkup, Update
+
+load_dotenv()
 from telegram.constants import ChatAction
 from telegram.ext import (
     Application,

@@ -25,6 +25,9 @@ from contextlib import contextmanager
 from typing import Iterator
 
 from croniter import croniter
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DB_PATH = os.getenv("ZENVY_DB_PATH", "zenvy.db")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
