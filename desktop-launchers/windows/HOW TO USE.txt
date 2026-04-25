@@ -1,0 +1,23 @@
+ZENVY AI — WINDOWS DESKTOP LAUNCHERS
+=====================================
+
+1. Copy all four .bat files to your Windows Desktop.
+2. Edit each one in Notepad and update the variables at the top:
+   - "1 - Open Zenvy Bot (Telegram).bat"  -> set BOT_USERNAME=
+   - "3 - Start Zenvy Bot (Node).bat"     -> set ZENVY_PATH=
+3. Double-click any launcher to run it.
+
+Optional polish:
+- Right-click a .bat -> Create shortcut. Right-click the shortcut ->
+  Properties -> Change Icon to give it a custom .ico file.
+- Pin the shortcut to your Start menu or Taskbar for one-click access.
+
+Order of operations the first time:
+  4 - Start Ollama         (the AI engine — must run before the bot)
+  3 - Start Zenvy Bot      (only if running the bot ON THIS PC; otherwise skip)
+  1 - Open Zenvy Bot       (chats with your bot via Telegram)
+  2 - Open Zenvy Web       (only if you also want the web portal)
+
+If your bot lives on a different machine (e.g., a 24/7 Linux box), you only
+need launchers 1 and 2. Skip 3 and 4 — those are for running everything
+locally on this Windows PC.
