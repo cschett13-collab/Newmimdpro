@@ -34,7 +34,12 @@ export function chooseModel(opts: {
   }
 
   // BYOK mode: user supplied their own key — they pay the provider directly.
-  if (userApiKeys?.anthropic) {
+  //
+  // Anthropic auto-selection is intentionally DISABLED. The runAnthropic helper
+  // and ANTHROPIC_MODEL env var still exist in aiRouter.ts for manual / future
+  // use, but chooseModel will never return provider:"anthropic" on its own.
+  // To re-enable, set ENABLE_ANTHROPIC_BYOK=1 in the environment.
+  if (process.env.ENABLE_ANTHROPIC_BYOK === "1" && userApiKeys?.anthropic) {
     return {
       provider: "anthropic",
       model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6",
