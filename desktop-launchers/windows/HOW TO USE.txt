@@ -1,23 +1,25 @@
 ZENVY AI — WINDOWS DESKTOP LAUNCHERS
 =====================================
 
-1. Copy all four .bat files to your Windows Desktop.
-2. Edit each one in Notepad and update the variables at the top:
-   - "1 - Open Zenvy Bot (Telegram).bat"  -> set BOT_USERNAME=
-   - "3 - Start Zenvy Bot (Node).bat"     -> set ZENVY_PATH=
-3. Double-click any launcher to run it.
+ALL .bat files are pre-filled — no editing needed.
+Copy this whole "windows" folder to your Desktop and double-click in order:
 
-Optional polish:
-- Right-click a .bat -> Create shortcut. Right-click the shortcut ->
-  Properties -> Change Icon to give it a custom .ico file.
-- Pin the shortcut to your Start menu or Taskbar for one-click access.
+FIRST-TIME SETUP (do once):
+  1. Right-click "1 - Install WSL and Ubuntu.bat"  ->  Run as administrator
+  2. Reboot your PC
+  3. Open "Ubuntu" from Start Menu, set a username/password, close it
+  4. Double-click "2 - Install Zenvy in Ubuntu.bat"  (downloads ~400 MB)
 
-Order of operations the first time:
-  4 - Start Ollama         (the AI engine — must run before the bot)
-  3 - Start Zenvy Bot      (only if running the bot ON THIS PC; otherwise skip)
-  1 - Open Zenvy Bot       (chats with your bot via Telegram)
-  2 - Open Zenvy Web       (only if you also want the web portal)
+EVERY DAY:
+  - Double-click "3 - Start Zenvy Bot.bat"           (keep window open)
+  - Double-click "1 - Open Zenvy Bot (Telegram).bat" (chat with your bot)
 
-If your bot lives on a different machine (e.g., a 24/7 Linux box), you only
-need launchers 1 and 2. Skip 3 and 4 — those are for running everything
-locally on this Windows PC.
+OPTIONAL:
+  - "3 - Start Zenvy Public.bat"     publishes a public web URL via Cloudflare
+  - "2 - Open Zenvy Web Portal.bat"  opens browser to localhost:3000
+  - "4 - Start Ollama.bat"           only needed if running Ollama natively on Windows
+                                     (the WSL install already handles this for you)
+
+To stop the bot: close the window opened by "3 - Start Zenvy Bot.bat".
+
+Polish: right-click any .bat -> Create shortcut -> pin to Start menu.
