@@ -879,6 +879,11 @@ def main() -> None:
         "Zenvy AI starting — tier=%s chat=%s code=%s reason=%s fast=%s api=%s db=%s",
         TIER, CHAT_MODEL, CODER_MODEL, REASONING_MODEL, FAST_MODEL, API_BASE, DB_PATH,
     )
+    log.info(
+        "Active integrations: %s (tools: %s)",
+        zenvy_tools.ACTIVE_INTEGRATIONS,
+        [t["function"]["name"] for t in zenvy_tools.TOOL_SCHEMAS],
+    )
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
