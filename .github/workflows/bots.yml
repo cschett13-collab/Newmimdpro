@@ -1,0 +1,69 @@
+name: bots
+
+# Free 24/7 cron for the FVCE bot army. GitHub Actions gives you 2,000
+# minutes/month free on private repos (unlimited on public). Each ping is a
+# single curl, so a 5-minute schedule costs ~9k seconds/mo (~150 minutes) —
+# well under the free quota.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   BOT_HOST_URL   e.g. https://portal.foxvalleyclientengine.com
+#   CRON_SECRET    same value as the env var on the host
+
+on:
+  schedule:
+    # Every 5 minutes — instant lead response (best-effort; GH Actions cron
+    # can lag by a few minutes during peak load).
+    - cron: "*/5 * * * *"
+    # 14:00 UTC = 9am Central (FVCE local) — daily digest + stale-opp sweep.
+    - cron: "0 14 * * *"
+  workflow_dispatch: # manual "run now" button
+
+permissions:
+  contents: read
+
+jobs:
+  lead-responder:
+    # Runs on every 5-min tick.
+    if: github.event.schedule == '*/5 * * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit /api/bots/lead-responder
+        env:
+          HOST: ${{ secrets.BOT_HOST_URL }}
+          SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 60 \
+            -H "Authorization: Bearer $SECRET" \
+            "$HOST/api/bots/lead-responder"
+
+  stale-opp-nudger:
+    # Daily morning sweep.
+    if: github.event.schedule == '0 14 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit /api/bots/stale-opp-nudger
+        env:
+          HOST: ${{ secrets.BOT_HOST_URL }}
+          SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 120 \
+            -H "Authorization: Bearer $SECRET" \
+            "$HOST/api/bots/stale-opp-nudger"
+
+  owner-pulse:
+    # Daily morning digest. Set notify=1 + BOT_OWNER_CONTACT_ID on the host
+    # to also SMS the owner.
+    if: github.event.schedule == '0 14 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit /api/bots/owner-pulse
+        env:
+          HOST: ${{ secrets.BOT_HOST_URL }}
+          SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 60 \
+            -H "Authorization: Bearer $SECRET" \
+            "$HOST/api/bots/owner-pulse?notify=1"

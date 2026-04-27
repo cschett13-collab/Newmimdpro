@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const COOKIE = "fvce_portal_session";
-const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+// Bot endpoints authenticate via the CRON_SECRET bearer header (see
+// src/app/api/bots/_shared.ts). They must skip the session-cookie check so
+// Vercel Cron / GitHub Actions can hit them without a logged-in browser.
+const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/bots"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

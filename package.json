@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "claude": "bash -c 'set -a && [ -f .env.local ] && source .env.local; set +a; exec claude \"$@\"' --"
   },
   "dependencies": {
     "next": "14.2.15",
