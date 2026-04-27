@@ -79,6 +79,38 @@ or in the URL `app.gohighlevel.com/v2/location/<locationId>/...`).
 | `PORTAL_ADMIN_EMAIL` | Login email for Fox Valley Client Engine staff. |
 | `PORTAL_ADMIN_PASSWORD` | Login password. Use something long. |
 | `PORTAL_CLIENTS` | JSON array of client configs (see above). |
+| `CRON_SECRET` | Required for `/api/bots/*`. Vercel Cron sends `Authorization: Bearer $CRON_SECRET` automatically. |
+| `BOT_LEAD_RESPONDER_LOOKBACK_MIN` | Optional. Default `10`. Minutes back to scan for new contacts. |
+| `BOT_LEAD_RESPONDER_TEMPLATE` | Optional. SMS copy. Supports `{{firstName}}`. |
+
+## Bots
+
+Always-on automations live under `src/app/api/bots/`. Vercel Cron triggers them
+on the schedule defined in `vercel.json`.
+
+### Lead responder (`/api/bots/lead-responder`)
+
+Scans each client's HighLevel sub-account every minute for contacts created in
+the last `BOT_LEAD_RESPONDER_LOOKBACK_MIN` minutes, sends an instant SMS, and
+tags the contact `fvce-bot-responded` so it never double-texts.
+
+**PIT scopes required (in addition to the read-only ones above):**
+- `contacts.write` — to add the dedupe tag
+- `conversations.write` and `conversations/message.write` — to send the SMS
+
+**Verify before going live:**
+
+```bash
+# Dry-run (lists who would be texted, sends nothing):
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  "https://<your-host>/api/bots/lead-responder?dryRun=1"
+```
+
+**Notes:**
+- Vercel Cron runs every minute on Pro plans only. Hobby is once daily — bump
+  `vercel.json` to `0 * * * *` (hourly) or upgrade.
+- The bot is idempotent via the `fvce-bot-responded` tag. Remove the tag in
+  HighLevel to re-allow a contact.
 
 ## Deploy
 

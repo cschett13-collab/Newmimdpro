@@ -80,6 +80,42 @@ export class HighLevel {
     });
   }
 
+  recentContacts(limit = 50) {
+    return this.request<{
+      contacts: Array<ContactSummary>;
+      total?: number;
+    }>("/contacts/search", {
+      method: "POST",
+      body: JSON.stringify({
+        locationId: this.client.locationId,
+        pageLimit: limit,
+        sort: [{ field: "dateAdded", direction: "desc" }],
+      }),
+    });
+  }
+
+  addContactTags(contactId: string, tags: string[]) {
+    return this.request<{ tags?: string[] }>(
+      `/contacts/${contactId}/tags`,
+      {
+        method: "POST",
+        body: JSON.stringify({ tags }),
+      },
+    );
+  }
+
+  // --- Outbound messaging ---
+  sendSms(contactId: string, message: string) {
+    return this.request<{
+      messageId?: string;
+      conversationId?: string;
+      msg?: string;
+    }>("/conversations/messages", {
+      method: "POST",
+      body: JSON.stringify({ type: "SMS", contactId, message }),
+    });
+  }
+
   // --- Pipelines / Opportunities ---
   pipelines() {
     return this.request<{ pipelines: Pipeline[] }>("/opportunities/pipelines", {
