@@ -4,6 +4,14 @@
     {
       "path": "/api/bots/lead-responder",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/bots/stale-opp-nudger",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/bots/owner-pulse?notify=1",
+      "schedule": "0 14 * * *"
     }
   ]
 }

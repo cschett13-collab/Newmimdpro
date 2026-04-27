@@ -116,6 +116,33 @@ export class HighLevel {
     });
   }
 
+  sendEmail(args: {
+    contactId: string;
+    subject: string;
+    html?: string;
+    text?: string;
+  }) {
+    return this.request<{
+      messageId?: string;
+      conversationId?: string;
+    }>("/conversations/messages", {
+      method: "POST",
+      body: JSON.stringify({
+        type: "Email",
+        contactId: args.contactId,
+        subject: args.subject,
+        html: args.html,
+        text: args.text,
+      }),
+    });
+  }
+
+  getContact(contactId: string) {
+    return this.request<{ contact: ContactSummary }>(
+      `/contacts/${contactId}`,
+    );
+  }
+
   // --- Pipelines / Opportunities ---
   pipelines() {
     return this.request<{ pipelines: Pipeline[] }>("/opportunities/pipelines", {

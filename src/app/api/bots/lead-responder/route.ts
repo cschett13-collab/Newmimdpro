@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClients, type Client } from "@/lib/clients";
 import { HighLevel, HighLevelError, type ContactSummary } from "@/lib/highlevel";
+import { authorize } from "../_shared";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,17 +28,8 @@ type ReportEntry = {
 };
 
 export async function GET(req: NextRequest) {
-  const expected = process.env.CRON_SECRET;
-  if (!expected) {
-    return NextResponse.json(
-      { error: "CRON_SECRET not configured" },
-      { status: 500 },
-    );
-  }
-  const auth = req.headers.get("authorization") ?? "";
-  if (auth !== `Bearer ${expected}`) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const denied = authorize(req);
+  if (denied) return denied;
 
   const dryRun = req.nextUrl.searchParams.get("dryRun") === "1";
   const lookbackMin = Number(

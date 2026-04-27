@@ -85,32 +85,48 @@ or in the URL `app.gohighlevel.com/v2/location/<locationId>/...`).
 
 ## Bots
 
-Always-on automations live under `src/app/api/bots/`. Vercel Cron triggers them
-on the schedule defined in `vercel.json`.
+Always-on automations live under `src/app/api/bots/`. Each is a secret-gated
+HTTP endpoint — anything that can curl a URL on a schedule will trigger them.
 
-### Lead responder (`/api/bots/lead-responder`)
+| Bot | Endpoint | Cadence | What it does |
+| --- | --- | --- | --- |
+| Lead responder | `/api/bots/lead-responder` | every 5 min | SMS new contacts created in the last `BOT_LEAD_RESPONDER_LOOKBACK_MIN` minutes; tags `fvce-bot-responded` so reruns can't double-text |
+| Stale-opp nudger | `/api/bots/stale-opp-nudger` | daily | SMS contacts on open opportunities not updated in `BOT_STALE_OPP_DAYS` days; tags `fvce-bot-nudged-7d` |
+| Owner pulse | `/api/bots/owner-pulse` | daily | JSON snapshot of pipeline state per client. Append `?notify=1` to also SMS the owner if `BOT_OWNER_CONTACT_ID` is set |
 
-Scans each client's HighLevel sub-account every minute for contacts created in
-the last `BOT_LEAD_RESPONDER_LOOKBACK_MIN` minutes, sends an instant SMS, and
-tags the contact `fvce-bot-responded` so it never double-texts.
+**PIT scopes required** (in addition to the read-only ones above):
+- `contacts.write` — for dedupe tags
+- `conversations.write` and `conversations/message.write` — for outbound SMS
 
-**PIT scopes required (in addition to the read-only ones above):**
-- `contacts.write` — to add the dedupe tag
-- `conversations.write` and `conversations/message.write` — to send the SMS
-
-**Verify before going live:**
+**Verify before going live** — every bot supports `?dryRun=1`:
 
 ```bash
-# Dry-run (lists who would be texted, sends nothing):
 curl -H "Authorization: Bearer $CRON_SECRET" \
   "https://<your-host>/api/bots/lead-responder?dryRun=1"
 ```
 
-**Notes:**
-- Vercel Cron runs every minute on Pro plans only. Hobby is once daily — bump
-  `vercel.json` to `0 * * * *` (hourly) or upgrade.
-- The bot is idempotent via the `fvce-bot-responded` tag. Remove the tag in
-  HighLevel to re-allow a contact.
+### Free 24/7 cron via GitHub Actions
+
+`.github/workflows/bots.yml` runs the bots on a schedule for $0 — works on a
+free Vercel Hobby host (which can't run sub-daily cron itself). Setup:
+
+1. Deploy the app: `vercel deploy` (Hobby plan is fine).
+2. In the GitHub repo, **Settings → Secrets and variables → Actions**, add:
+   - `BOT_HOST_URL` — your deployed URL, e.g. `https://portal.foxvalleyclientengine.com`
+   - `CRON_SECRET` — same value as the `CRON_SECRET` env var on the host
+3. The workflow auto-runs on schedule. Use the **Run workflow** button on the
+   Actions tab to trigger any bot manually.
+
+GitHub Actions cron min interval is 5 min and is best-effort (can lag during
+peak load). For sub-minute response, upgrade Vercel to Pro and let
+`vercel.json` handle it.
+
+### Adding a new bot
+
+1. Drop a `route.ts` under `src/app/api/bots/<name>/` that calls
+   `authorize(req)` from `../_shared` first.
+2. Add it to `.github/workflows/bots.yml` (free cron) or `vercel.json` (Pro).
+3. Document its required env vars in `.env.example`.
 
 ## Deploy
 
