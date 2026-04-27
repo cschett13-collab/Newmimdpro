@@ -98,6 +98,8 @@ HTTP endpoint — anything that can curl a URL on a schedule will trigger them.
 - `contacts.write` — for dedupe tags
 - `conversations.write` and `conversations/message.write` — for outbound SMS
 
+Verify your token has them with: `curl -X POST https://services.leadconnectorhq.com/contacts/<id>/tags -H "Authorization: Bearer $PIT" -H "Version: 2021-07-28" -d '{"tags":["scope-check"]}'` — a 201 means write scope is on.
+
 **Verify before going live** — every bot supports `?dryRun=1`:
 
 ```bash
