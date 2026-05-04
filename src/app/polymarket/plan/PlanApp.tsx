@@ -276,6 +276,42 @@ function PlanList({
   );
 }
 
+type LiveQuote = { price: number; meta?: Record<string, unknown> } | null;
+
+function useLiveQuote(plan: PlanRow): LiveQuote {
+  const [quote, setQuote] = useState<LiveQuote>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchOnce = async () => {
+      const url =
+        plan.type === "polymarket"
+          ? `/api/quote?type=polymarket&slug=${encodeURIComponent(
+              plan.symbol,
+            )}&outcome=${encodeURIComponent(plan.outcome || "Yes")}`
+          : `/api/quote?type=stock&symbol=${encodeURIComponent(plan.symbol)}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok || cancelled) return;
+        const json = (await res.json()) as { price?: number };
+        if (typeof json.price === "number" && !cancelled) {
+          setQuote({ price: json.price, meta: json });
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    fetchOnce();
+    const t = setInterval(fetchOnce, 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [plan.type, plan.symbol, plan.outcome]);
+
+  return quote;
+}
+
 function PlanRowCard({
   plan,
   readonly,
@@ -290,6 +326,12 @@ function PlanRowCard({
   const ms = timeRemaining(plan.stagedAt);
   const staged = isStaged(plan);
   const unlocked = isUnlocked(plan);
+  const quote = useLiveQuote(plan);
+  const triggerHit = quote
+    ? plan.trigger === "above"
+      ? quote.price >= plan.triggerPrice
+      : quote.price <= plan.triggerPrice
+    : false;
 
   const stage = () =>
     onUpdate((p) =>
@@ -341,6 +383,22 @@ function PlanRowCard({
         <div className="min-w-0 flex-1">
           <div className="font-medium">{planLabel(plan)}</div>
           <div className="text-xs text-ink-600 mt-0.5">{plan.thesis}</div>
+          {quote && (
+            <div className="text-xs mt-1 flex items-center gap-2 flex-wrap">
+              <span
+                className={`font-mono font-semibold ${
+                  triggerHit ? "text-green-700" : "text-ink-700"
+                }`}
+              >
+                Live: {formatLivePrice(plan, quote.price)}
+              </span>
+              <span className="text-ink-500">
+                {triggerHit
+                  ? "✓ trigger hit"
+                  : `${formatDistance(plan, quote.price)} from trigger`}
+              </span>
+            </div>
+          )}
           <div className="text-xs text-ink-500 mt-1">
             Stop {plan.stop || "—"} · Target {plan.target || "—"} · Max{" "}
             {fmtMoney(plan.maxStake)}
@@ -419,6 +477,21 @@ function formatRemaining(ms: number): string {
   const mm = Math.floor(s / 60);
   const ss = s % 60;
   return `${mm}:${String(ss).padStart(2, "0")}`;
+}
+
+function formatLivePrice(plan: PlanRow, price: number): string {
+  if (plan.type === "polymarket") return `${(price * 100).toFixed(1)}¢`;
+  return `$${price.toFixed(2)}`;
+}
+
+function formatDistance(plan: PlanRow, price: number): string {
+  const diff = plan.triggerPrice - price;
+  const abs = Math.abs(diff);
+  if (plan.type === "polymarket") {
+    return `${(abs * 100).toFixed(1)}¢ ${diff > 0 ? "below" : "above"}`;
+  }
+  const pct = price > 0 ? (abs / price) * 100 : 0;
+  return `$${abs.toFixed(2)} (${pct.toFixed(1)}%) ${diff > 0 ? "below" : "above"}`;
 }
 
 function AlertExport({ plans }: { plans: PlanRow[] }) {
