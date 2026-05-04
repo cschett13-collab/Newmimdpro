@@ -25,7 +25,7 @@ export async function getLeaderboard(
   window: LeaderboardWindow,
   limit = 25,
 ): Promise<{ entries: LeaderboardEntry[]; error?: string }> {
-  const url = `${BASE}/${kind}?window=${window}&limit=${limit}`;
+  const url = `${BASE}/${kind}?interval=${window}&limit=${limit}`;
   try {
     const res = await fetch(url, {
       next: { revalidate: 60 },
