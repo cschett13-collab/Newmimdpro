@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   displayName,
   getLeaderboard,
@@ -45,15 +46,20 @@ export default async function LeaderboardPage() {
   return (
     <main className="min-h-screen bg-ink-50">
       <header className="border-b border-ink-100 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          <div className="text-xs uppercase tracking-wide text-ink-500">
-            Polymarket
+        <div className="mx-auto max-w-6xl px-6 py-6 flex items-start justify-between gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-wide text-ink-500">
+              Polymarket
+            </div>
+            <h1 className="text-2xl font-semibold mt-1">Top Winners</h1>
+            <p className="text-sm text-ink-500 mt-1 max-w-2xl">
+              Traders ranked by realized profit. Only positive-PnL accounts
+              shown. Refreshes every 60 seconds.
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold mt-1">Top Winners</h1>
-          <p className="text-sm text-ink-500 mt-1 max-w-2xl">
-            Traders ranked by realized profit. Only positive-PnL accounts shown.
-            Refreshes every 60 seconds.
-          </p>
+          <Link href="/polymarket/journal" className="btn-ghost">
+            My journal
+          </Link>
         </div>
       </header>
 
