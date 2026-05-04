@@ -24,9 +24,14 @@ export default function JournalPage() {
               breaking your rules.
             </p>
           </div>
-          <Link href="/polymarket/leaderboard" className="btn-ghost">
-            Leaderboard
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/polymarket/leaderboard" className="btn-ghost">
+              Leaderboard
+            </Link>
+            <Link href="/polymarket/follow" className="btn-ghost">
+              What they&rsquo;re betting
+            </Link>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-6 py-8">
