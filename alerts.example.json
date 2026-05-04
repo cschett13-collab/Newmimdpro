@@ -1,0 +1,28 @@
+[
+  {
+    "type": "polymarket",
+    "slug": "will-bitcoin-hit-150k-by-june-30-2026",
+    "outcome": "Yes",
+    "above": 0.05,
+    "label": "BTC $150k by June 30 — YES above 5¢"
+  },
+  {
+    "type": "polymarket",
+    "slug": "will-manchester-city-fc-win-on-2026-05-04",
+    "outcome": "Yes",
+    "below": 0.55,
+    "label": "Man City YES dipped below 55¢"
+  },
+  {
+    "type": "stock",
+    "symbol": "MU",
+    "above": 95,
+    "label": "Micron broke $95"
+  },
+  {
+    "type": "stock",
+    "symbol": "MU",
+    "below": 80,
+    "label": "Micron broke $80 to the downside"
+  }
+]

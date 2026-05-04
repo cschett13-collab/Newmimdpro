@@ -24,7 +24,10 @@ export default function JournalPage() {
               breaking your rules.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Link href="/polymarket/plan" className="btn-ghost">
+              Plan
+            </Link>
             <Link href="/polymarket/leaderboard" className="btn-ghost">
               Leaderboard
             </Link>
