@@ -57,9 +57,14 @@ export default async function LeaderboardPage() {
               shown. Refreshes every 60 seconds.
             </p>
           </div>
-          <Link href="/polymarket/journal" className="btn-ghost">
-            My journal
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/polymarket/follow" className="btn-ghost">
+              What they&rsquo;re betting
+            </Link>
+            <Link href="/polymarket/journal" className="btn-ghost">
+              My journal
+            </Link>
+          </div>
         </div>
       </header>
 
