@@ -1,10 +1,9 @@
 {
-  "name": "fvce-client-portal",
+  "name": "one-stop-handy-man-website",
   "version": "0.1.0",
   "private": true,
-  "description": "Fox Valley Client Engine / IMD client portal — pulls live stats from HighLevel.",
+  "description": "Marketing website for One Stop Handy Man LLC.",
   "scripts": {
-    "setup": "node scripts/setup.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -14,12 +13,7 @@
   "dependencies": {
     "next": "14.2.15",
     "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "jose": "5.9.6",
-    "zod": "3.23.8",
-    "clsx": "2.1.1",
-    "lucide-react": "0.454.0",
-    "recharts": "2.12.7"
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@types/node": "20.16.10",

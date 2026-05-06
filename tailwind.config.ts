@@ -6,17 +6,17 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: "#eef6ff",
-          100: "#d9eaff",
-          200: "#bcdaff",
-          300: "#8ec2ff",
-          400: "#599eff",
-          500: "#2f78ff",
-          600: "#1a59f5",
-          700: "#1544db",
-          800: "#183ab0",
-          900: "#19368a",
-          950: "#12235a",
+          50: "#fff7ed",
+          100: "#ffedd5",
+          200: "#fed7aa",
+          300: "#fdba74",
+          400: "#fb923c",
+          500: "#f97316",
+          600: "#ea580c",
+          700: "#c2410c",
+          800: "#9a3412",
+          900: "#7c2d12",
+          950: "#431407",
         },
         ink: {
           950: "#070a13",
@@ -34,9 +34,11 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(10,14,28,0.06), 0 8px 24px rgba(10,14,28,0.06)",
+        cta: "0 10px 30px rgba(234,88,12,0.35)",
       },
     },
   },
