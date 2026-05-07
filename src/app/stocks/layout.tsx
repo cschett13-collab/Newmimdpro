@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, LineChart, LogOut } from "lucide-react";
+import { StocksTabs } from "./StocksTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,9 @@ export default function StocksLayout({
               Sign out
             </button>
           </form>
+        </div>
+        <div className="mx-auto max-w-6xl px-6">
+          <StocksTabs />
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
