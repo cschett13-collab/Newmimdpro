@@ -8,6 +8,7 @@ import {
   CalendarDays,
   MessagesSquare,
   ChevronDown,
+  LineChart,
   LogOut,
 } from "lucide-react";
 
@@ -30,6 +31,10 @@ export default function ClientLayout({
     { href: `/c/${client.id}/opportunities`, label: "Pipeline", icon: Briefcase },
     { href: `/c/${client.id}/appointments`, label: "Appointments", icon: CalendarDays },
     { href: `/c/${client.id}/conversations`, label: "Conversations", icon: MessagesSquare },
+  ];
+
+  const toolItems = [
+    { href: `/stocks`, label: "Stock signals", icon: LineChart },
   ];
 
   return (
@@ -79,6 +84,24 @@ export default function ClientLayout({
             </Link>
           ))}
         </nav>
+
+        <div className="mt-6 px-3">
+          <div className="px-3 text-[10px] uppercase tracking-widest text-ink-400 mb-1">
+            Tools
+          </div>
+          <nav className="space-y-1">
+            {toolItems.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-ink-700 hover:bg-ink-100"
+              >
+                <Icon className="h-4 w-4 text-ink-400" />
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <div className="mt-auto p-3">
           <form action="/api/auth/logout" method="post">

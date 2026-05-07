@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getClients } from "@/lib/clients";
-import { Building2, Plus } from "lucide-react";
+import { Building2, LineChart, Plus } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +19,15 @@ export default function HomePage() {
             </div>
             <h1 className="text-xl font-semibold">Client Portal</h1>
           </div>
-          <form action="/api/auth/logout" method="post">
-            <button className="btn-ghost">Sign out</button>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link href="/stocks" className="btn-ghost">
+              <LineChart className="h-4 w-4" />
+              Stock signals
+            </Link>
+            <form action="/api/auth/logout" method="post">
+              <button className="btn-ghost">Sign out</button>
+            </form>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-5xl px-6 py-10">
