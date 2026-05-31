@@ -155,6 +155,29 @@ git pull
 docker compose up -d --build
 ```
 
+**Managing the lead queue** — every dispatcher op is one line via the
+included `Makefile` (or `docker compose exec dispatcher python /app/leads.py …`
+directly):
+
+```bash
+make leads-pending             # list PENDING leads waiting on approval
+make leads-list                # last 50 leads of any status
+make leads-failed              # leads that hit MAX_ATTEMPTS
+
+# Insert a new outreach (body read from stdin)
+cat audit.txt | docker compose exec -T dispatcher python /app/leads.py add \
+    --email contact@example.com --name "Jane Doe" \
+    --company "Acme Roofing" \
+    --subject "Free technical audit for Acme Roofing"
+
+make approve-all               # flip every PENDING → APPROVED (dispatcher picks them up)
+make backup-leads              # snapshot lead_queue.db into ./backups/
+```
+
+Run `make help` for the full list. The dispatcher polls every
+`DISPATCHER_POLL_SECONDS` (default 300), so approved leads typically go
+out within 5 minutes.
+
 **The dispatcher refuses to start** if any of `SMTP_HOST`, `SMTP_USER`,
 `SMTP_PASSWORD`, `DISPATCHER_FROM_EMAIL`, `DISPATCHER_BUSINESS_NAME`, or
 `DISPATCHER_POSTAL_ADDRESS` are blank — by design, since CAN-SPAM requires

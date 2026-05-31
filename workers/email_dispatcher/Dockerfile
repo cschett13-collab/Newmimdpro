@@ -10,7 +10,7 @@ RUN addgroup -S dispatcher \
  && mkdir -p /data \
  && chown -R dispatcher:dispatcher /data /app
 
-COPY --chown=dispatcher:dispatcher dispatcher.py schema.sql ./
+COPY --chown=dispatcher:dispatcher dispatcher.py leads.py schema.sql ./
 
 USER dispatcher
 ENV PYTHONUNBUFFERED=1 \
