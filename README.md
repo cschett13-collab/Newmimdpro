@@ -114,10 +114,10 @@ a single host (UGREEN NAS, Pop!_OS workstation, etc.):
 A named volume `fvce_lead_queue` persists the SQLite lead queue across
 container restarts. Portainer's own state lives in `fvce_portainer_data`.
 
-**Launch sequence:**
+**Launch sequence (first time):**
 
 ```bash
-# 1. Clone or pull the repo onto the host
+# 1. Clone the repo onto the host
 git clone <repo-url> fvce && cd fvce
 
 # 2. Copy and fill in env vars (SMTP creds, postal address, etc.)
@@ -125,12 +125,21 @@ cp .env.example .env
 $EDITOR .env
 
 # 3. Build and start everything in the background
-docker compose up -d --build
-
-# 4. Verify
-docker compose ps
-docker compose logs -f portal dispatcher
+./deploy.sh
 ```
+
+**Subsequent deploys** (after pushing changes to `main`):
+
+```bash
+cd fvce && ./deploy.sh
+```
+
+`deploy.sh` checks `.env` exists, fetches the latest commits on `main`,
+shows you what changed, fast-forwards, rebuilds the affected images,
+restarts the services, and probes the portal's `/login` endpoint to
+confirm it's responding. Run `./deploy.sh --help` for flags (`--branch`,
+`--force`, `--no-pull`, `--logs`). It refuses to run if Docker, Docker
+Compose, or `.env` aren't present — no surprises.
 
 The portal is reachable at `http://<host>:${PORTAL_PORT:-8080}`; Portainer
 at `https://<host>:${PORTAINER_PORT:-9443}` (self-signed cert on first
