@@ -56,11 +56,13 @@ Prints every Ollama / LM Studio / oobabooga server on your network so you
 know which IP to point the bot at.
 
 ### 4. On the NAS — deploy the bot
+The container image is prebuilt on GitHub Actions (linux/amd64 + linux/arm64),
+so the NAS just pulls it — no compile, no waiting:
+
 ```bash
 mkdir -p /volume1/docker/zenvy && cd /volume1/docker/zenvy
-git clone -b claude/local-dev-setup-L2uDR https://github.com/cschett13-collab/Newmimdpro.git src
-cp src/zenvy-ai/Dockerfile src/zenvy-ai/docker-compose.yml .
-ln -sf src/zenvy-ai/bot.py src/zenvy-ai/agents.py src/zenvy-ai/tools.py src/zenvy-ai/requirements.txt .
+curl -fsSL -o docker-compose.yml \
+  https://raw.githubusercontent.com/cschett13-collab/Newmimdpro/claude/local-dev-setup-L2uDR/zenvy-ai/docker-compose.yml
 ```
 
 (If `/volume1/docker` doesn't exist on your UGREEN model, use the actual
@@ -83,10 +85,10 @@ EOF
 chmod 600 /volume1/docker/zenvy/.env
 ```
 
-### 6. Build + start
+### 6. Pull + start
 ```bash
 cd /volume1/docker/zenvy
-docker compose up -d --build
+docker compose up -d
 docker compose logs -f bot
 ```
 Wait for `Application started`. **DM @codyx_zenvy_bot on Telegram — done.**
@@ -100,7 +102,7 @@ Wait for `Application started`. **DM @codyx_zenvy_bot on Telegram — done.**
 | See live logs | `docker compose logs -f bot` |
 | Restart after `.env` change | `docker compose restart bot` |
 | Stop everything | `docker compose down` |
-| Pull a code update | `cd src && git pull && cd .. && docker compose up -d --build` |
+| Pull a code update | `docker compose pull && docker compose up -d` |
 
 ---
 

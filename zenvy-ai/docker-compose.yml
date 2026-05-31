@@ -4,29 +4,27 @@
 #   1. SSH into the NAS or open the Docker app -> Projects -> New
 #   2. Drop this file in /volume1/docker/zenvy/docker-compose.yml
 #   3. Create /volume1/docker/zenvy/.env with TELEGRAM_BOT_TOKEN + OLLAMA_HOST
-#      (point OLLAMA_HOST at your PC's LAN IP, e.g. http://192.168.1.50:11434)
+#      (point OLLAMA_HOST at your PC's Tailscale name, e.g. http://pc:11434)
 #   4. From that folder run:  docker compose up -d
 #
-# Bot stays online 24/7. When your PC sleeps, /chat returns an error — flip
-# ZENVY_TIER to "pro" in .env (Groq/OpenRouter key) for a cloud fallback.
+# The image is prebuilt and published by GitHub Actions to GHCR (multi-arch,
+# linux/amd64 + linux/arm64) — your NAS pulls in seconds instead of compiling.
 
 services:
   bot:
-    build: .
-    image: zenvy-ai:latest
+    image: ghcr.io/cschett13-collab/zenvy-ai:latest
+    pull_policy: always
     container_name: zenvy-bot
     restart: unless-stopped
     env_file: .env
     volumes:
       - ./data:/data           # SQLite memory survives container rebuilds
-    # Reach the PC's Ollama over the LAN — no host networking needed.
-    # If NAS and PC are on different VLANs, set extra_hosts: ["pc.local:192.168.x.y"].
 
   # Optional: scheduled agents process (lead-gen, content, outreach).
   # Enable by uncommenting and `docker compose up -d agents`.
   # agents:
-  #   build: .
-  #   image: zenvy-ai:latest
+  #   image: ghcr.io/cschett13-collab/zenvy-ai:latest
+  #   pull_policy: always
   #   container_name: zenvy-agents
   #   restart: unless-stopped
   #   env_file: .env
