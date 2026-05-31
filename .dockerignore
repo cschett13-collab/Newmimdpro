@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+README.md
+.vscode
+.idea
+.DS_Store
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+workers/email_dispatcher/data

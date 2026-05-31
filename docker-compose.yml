@@ -1,0 +1,77 @@
+# FVCE sovereign deployment — three services:
+#   - portal       Next.js client portal (this repo)
+#   - dispatcher   Python SMTP worker, polls lead_queue.db
+#   - portainer    Portainer CE for visual container management
+#
+# Secrets / per-host config come from .env at the compose-project root
+# (NEVER commit a real .env; see .env.example for the full variable list).
+
+services:
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fvce-portal:latest
+    container_name: fvce-portal
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      PORTAL_SESSION_SECRET: ${PORTAL_SESSION_SECRET}
+      PORTAL_ADMIN_EMAIL: ${PORTAL_ADMIN_EMAIL}
+      PORTAL_ADMIN_PASSWORD: ${PORTAL_ADMIN_PASSWORD}
+      PORTAL_CLIENTS: ${PORTAL_CLIENTS}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      # host:container — bound to all interfaces so the NAS can serve
+      # the workstation; change to "127.0.0.1:8080:3000" to keep it local.
+      - "${PORTAL_PORT:-8080}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  dispatcher:
+    build:
+      context: ./workers/email_dispatcher
+      dockerfile: Dockerfile
+    image: fvce-dispatcher:latest
+    container_name: fvce-dispatcher
+    restart: unless-stopped
+    environment:
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      DISPATCHER_FROM_NAME: ${DISPATCHER_FROM_NAME:-Fox Valley Client Engine}
+      DISPATCHER_FROM_EMAIL: ${DISPATCHER_FROM_EMAIL}
+      DISPATCHER_REPLY_TO: ${DISPATCHER_REPLY_TO:-}
+      DISPATCHER_BUSINESS_NAME: ${DISPATCHER_BUSINESS_NAME}
+      DISPATCHER_POSTAL_ADDRESS: ${DISPATCHER_POSTAL_ADDRESS}
+      DISPATCHER_UNSUBSCRIBE_EMAIL: ${DISPATCHER_UNSUBSCRIBE_EMAIL:-}
+      DISPATCHER_POLL_SECONDS: ${DISPATCHER_POLL_SECONDS:-300}
+      DISPATCHER_BATCH_SIZE: ${DISPATCHER_BATCH_SIZE:-10}
+      DISPATCHER_MAX_ATTEMPTS: ${DISPATCHER_MAX_ATTEMPTS:-3}
+    volumes:
+      - lead_queue:/data
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: fvce-portainer
+    restart: unless-stopped
+    ports:
+      - "${PORTAINER_PORT:-9443}:9443"
+    volumes:
+      # Manages the local Docker engine — mount the socket read-write.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  # SQLite lead queue — persists across dispatcher restarts/upgrades.
+  lead_queue:
+    name: fvce_lead_queue
+  # Portainer's own state (users, endpoints, stacks, settings).
+  portainer_data:
+    name: fvce_portainer_data

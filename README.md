@@ -91,7 +91,7 @@ or in the URL `app.gohighlevel.com/v2/location/<locationId>/...`).
 
 ## Deploy
 
-Any Node.js host works. Vercel is simplest:
+### Option A — Vercel (cloud)
 
 ```bash
 vercel deploy
@@ -99,6 +99,66 @@ vercel deploy
 
 Set the four env vars in the Vercel project settings. Redeploy. Add the
 resulting domain (e.g. `portal.foxvalleyclientengine.com`) as a CNAME.
+
+### Option B — Self-hosted via docker compose (sovereign / NAS)
+
+The repo ships a complete `docker-compose.yml` that runs three services on
+a single host (UGREEN NAS, Pop!_OS workstation, etc.):
+
+| Service | Purpose | Default URL |
+| --- | --- | --- |
+| `portal` | The Next.js client portal (this app) | <http://NAS_IP:8080> |
+| `portainer` | Visual Docker management UI | <https://NAS_IP:9443> |
+| `dispatcher` | Python SMTP worker — polls `lead_queue.db` for `APPROVED` rows and sends CAN-SPAM compliant audit emails | (no UI; logs only) |
+
+A named volume `fvce_lead_queue` persists the SQLite lead queue across
+container restarts. Portainer's own state lives in `fvce_portainer_data`.
+
+**Launch sequence:**
+
+```bash
+# 1. Clone or pull the repo onto the host
+git clone <repo-url> fvce && cd fvce
+
+# 2. Copy and fill in env vars (SMTP creds, postal address, etc.)
+cp .env.example .env
+$EDITOR .env
+
+# 3. Build and start everything in the background
+docker compose up -d --build
+
+# 4. Verify
+docker compose ps
+docker compose logs -f portal dispatcher
+```
+
+The portal is reachable at `http://<host>:${PORTAL_PORT:-8080}`; Portainer
+at `https://<host>:${PORTAINER_PORT:-9443}` (self-signed cert on first
+launch — accept it, then create your admin account).
+
+**Pop!_OS workstation shortcuts** — drop clickable launcher icons for the
+portal and Portainer:
+
+```bash
+NAS_IP=192.168.1.50 \
+PORTAL_PORT=8080 \
+PORTAINER_PORT=9443 \
+    bash scripts/create_gui_shortcuts.sh
+```
+
+Then search "FVCE" in Activities.
+
+**Updating after a `git pull`:**
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+**The dispatcher refuses to start** if any of `SMTP_HOST`, `SMTP_USER`,
+`SMTP_PASSWORD`, `DISPATCHER_FROM_EMAIL`, `DISPATCHER_BUSINESS_NAME`, or
+`DISPATCHER_POSTAL_ADDRESS` are blank — by design, since CAN-SPAM requires
+a real physical address in every outbound email.
 
 ## Notes
 
