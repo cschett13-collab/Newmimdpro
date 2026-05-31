@@ -6,7 +6,7 @@ COMPOSE := docker compose
 
 .PHONY: help up down restart build logs ps shell-portal shell-dispatcher \
         leads-list leads-pending leads-failed approve-all backup-leads \
-        verify
+        verify smtp-test mailgun-dns
 
 help:  ## list available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -60,6 +60,18 @@ backup-leads:  ## copy lead_queue.db out of the volume to ./backups/
 verify:  ## syntax-check dispatcher + leads CLI without running them
 	python3 -m py_compile workers/email_dispatcher/dispatcher.py
 	python3 -m py_compile workers/email_dispatcher/leads.py
+	python3 -m py_compile scripts/smtp-test.py
 	python3 -c "import sqlite3; sqlite3.connect(':memory:').executescript(open('workers/email_dispatcher/schema.sql').read())"
 	bash -n scripts/create_gui_shortcuts.sh
+	bash -n scripts/cloudflare-mailgun-dns.sh
 	@echo "all files parse cleanly"
+
+# --- email/SMTP setup (Mailgun + Cloudflare) — see docs/email-setup.md ---
+
+smtp-test:  ## send one test email through SMTP creds in .env (RECIPIENT=you@x.com)
+	@if [ -z "$(RECIPIENT)" ]; then echo "usage: make smtp-test RECIPIENT=you@example.com"; exit 64; fi
+	./scripts/smtp-test.py $(RECIPIENT)
+
+mailgun-dns:  ## create Mailgun's 5 DNS records on Cloudflare (ZONE=foxvalleyclientengine.com)
+	@if [ -z "$(ZONE)" ]; then echo "usage: make mailgun-dns ZONE=<apex-domain> (also set CF_API_TOKEN and MAILGUN_DKIM_PUBLIC_KEY)"; exit 64; fi
+	./scripts/cloudflare-mailgun-dns.sh $(ZONE)
