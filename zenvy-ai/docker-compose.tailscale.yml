@@ -1,0 +1,33 @@
+# Tailscale sidecar — joins the NAS bot to your tailnet without installing
+# Tailscale on the host. Use only if your UGREEN UGOS App Center does NOT
+# have a native Tailscale app.
+#
+# Deploy:
+#   cd /volume1/docker/zenvy
+#   docker compose -f docker-compose.yml -f docker-compose.tailscale.yml up -d
+#
+# On first run, `docker logs zenvy-tailscale` prints a URL — click it, sign
+# in with your Google account, name the device "nas" in the admin console.
+
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: zenvy-tailscale
+    hostname: nas               # shows up as `nas` in your tailnet
+    restart: unless-stopped
+    environment:
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--accept-dns=false --ssh
+    volumes:
+      - ./tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+  # Re-declare the bot using Tailscale's network namespace so it can reach
+  # peers by hostname (pc, goblin) without host networking.
+  bot:
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
