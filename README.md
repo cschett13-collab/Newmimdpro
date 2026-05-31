@@ -22,6 +22,14 @@ sub-account and displays them as its own self-contained app.
   - Recent conversations and active opportunities
 - Full-page views for Contacts, Pipeline, Appointments, Conversations
 - Client switcher in the sidebar — add as many HighLevel sub-accounts as you want
+- **AI features (optional, requires `ANTHROPIC_API_KEY`):**
+  - **AI insights panel** on the dashboard — Claude reads the live HighLevel
+    snapshot and produces a plain-English briefing of what's working, what
+    needs attention, and concrete next actions.
+  - **AI assistant page** (`/c/<id>/ai`) — chat with Claude about the client's
+    contacts, pipeline, conversations, and appointments.
+  - **Reply suggestions** on the Conversations page — generates three
+    drafted replies (warm / concise / clarifying) for any inbound message.
 
 ## Quick start
 
@@ -79,6 +87,7 @@ or in the URL `app.gohighlevel.com/v2/location/<locationId>/...`).
 | `PORTAL_ADMIN_EMAIL` | Login email for Fox Valley Client Engine staff. |
 | `PORTAL_ADMIN_PASSWORD` | Login password. Use something long. |
 | `PORTAL_CLIENTS` | JSON array of client configs (see above). |
+| `ANTHROPIC_API_KEY` | *(Optional)* Enables the AI insights panel, AI assistant page, and reply-suggestion buttons. Get one at <https://console.anthropic.com/settings/keys>. If unset, those features show a "configure ANTHROPIC_API_KEY" notice and everything else works normally. |
 
 ## Deploy
 

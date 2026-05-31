@@ -3,6 +3,8 @@ import { getClient } from "@/lib/clients";
 import { HighLevel, HighLevelError } from "@/lib/highlevel";
 import { PageHeader } from "@/components/PageHeader";
 import { ApiErrorBanner } from "@/components/ApiErrorBanner";
+import { ReplySuggestions } from "@/components/ReplySuggestions";
+import { isClaudeConfigured } from "@/lib/claude";
 import { fmtNumber, relative } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +20,7 @@ export default async function ConversationsPage({
   if (!client) notFound();
   const hl = new HighLevel(client);
   const unreadOnly = searchParams.unread === "1";
+  const aiEnabled = isClaudeConfigured();
 
   let error: string | null = null;
   let conversations: Awaited<
@@ -104,6 +107,17 @@ export default async function ConversationsPage({
                       </span>
                     )}
                   </div>
+                  {c.lastMessageBody && (
+                    <ReplySuggestions
+                      clientId={client.id}
+                      contactName={
+                        c.fullName ?? c.email ?? c.phone ?? "Customer"
+                      }
+                      lastMessage={c.lastMessageBody}
+                      channel={c.lastMessageType}
+                      enabled={aiEnabled}
+                    />
+                  )}
                 </div>
               </div>
             ))

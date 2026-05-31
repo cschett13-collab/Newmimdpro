@@ -11,6 +11,8 @@ import { fmtDateTime, fmtMoney, fmtNumber, relative } from "@/lib/format";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { ApiErrorBanner } from "@/components/ApiErrorBanner";
+import { InsightsPanel } from "@/components/InsightsPanel";
+import { isClaudeConfigured } from "@/lib/claude";
 import {
   Users,
   Briefcase,
@@ -187,6 +189,13 @@ export default async function DashboardPage({
             openOpps={openOpps}
           />
           <UpcomingAppointments events={upcomingAppointments.slice(0, 8)} />
+        </section>
+
+        <section>
+          <InsightsPanel
+            clientId={client.id}
+            configured={isClaudeConfigured()}
+          />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
