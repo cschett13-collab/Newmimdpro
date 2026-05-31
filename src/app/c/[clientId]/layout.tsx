@@ -9,6 +9,7 @@ import {
   MessagesSquare,
   ChevronDown,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,7 @@ export default function ClientLayout({
     { href: `/c/${client.id}/opportunities`, label: "Pipeline", icon: Briefcase },
     { href: `/c/${client.id}/appointments`, label: "Appointments", icon: CalendarDays },
     { href: `/c/${client.id}/conversations`, label: "Conversations", icon: MessagesSquare },
+    { href: `/c/${client.id}/ai`, label: "AI assistant", icon: Sparkles },
   ];
 
   return (
