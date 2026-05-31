@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const COOKIE = "fvce_portal_session";
-const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/api/auth/login",
+  // Public marketing / sales funnel
+  "/start",
+  "/api/lead",
+];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

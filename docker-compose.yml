@@ -22,6 +22,16 @@ services:
       PORTAL_ADMIN_PASSWORD: ${PORTAL_ADMIN_PASSWORD}
       PORTAL_CLIENTS: ${PORTAL_CLIENTS}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Public sales funnel (/start) — all optional, blanks fall back to defaults.
+      STRIPE_CHECKOUT_STARTER: ${STRIPE_CHECKOUT_STARTER:-}
+      STRIPE_CHECKOUT_PRO: ${STRIPE_CHECKOUT_PRO:-}
+      STRIPE_CHECKOUT_MANAGED: ${STRIPE_CHECKOUT_MANAGED:-}
+      LEAD_WEBHOOK_URL: ${LEAD_WEBHOOK_URL:-}
+      OFFER_BRAND: ${OFFER_BRAND:-}
+      OFFER_HEADLINE: ${OFFER_HEADLINE:-}
+      OFFER_SUBHEAD: ${OFFER_SUBHEAD:-}
+      OFFER_BOOKING_URL: ${OFFER_BOOKING_URL:-}
+      OFFER_CONTACT_EMAIL: ${OFFER_CONTACT_EMAIL:-}
     ports:
       # host:container — bound to all interfaces so the NAS can serve
       # the workstation; change to "127.0.0.1:8080:3000" to keep it local.
